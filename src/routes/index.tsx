@@ -240,7 +240,40 @@ function Studio() {
                   {r}
                 </button>
               ))}
+            {mode === "voice" &&
+              TONES.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTone(t.id)}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    tone === t.id
+                      ? "border-primary text-primary"
+                      : "border-border text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
           </div>
+
+          {mode === "voice" && (
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {VOICES.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => setVoice(v.id)}
+                  className={`rounded-xl border p-3 text-left transition-colors ${
+                    voice === v.id
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-muted"
+                  }`}
+                >
+                  <p className="text-sm font-medium">{v.label}</p>
+                  <p className="text-xs text-muted-foreground">{v.desc}</p>
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button
