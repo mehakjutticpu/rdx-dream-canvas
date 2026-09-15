@@ -134,13 +134,15 @@ function Studio() {
   }
 
   const aspectClass =
-    result?.mode === "video"
-      ? "aspect-video"
-      : ratio === "1:1"
-        ? "aspect-square"
-        : ratio === "9:16"
-          ? "aspect-[9/16]"
-          : "aspect-video";
+    mode === "voice" || result?.mode === "voice"
+      ? "aspect-[3/1]"
+      : result?.mode === "video"
+        ? "aspect-video"
+        : ratio === "1:1"
+          ? "aspect-square"
+          : ratio === "9:16"
+            ? "aspect-[9/16]"
+            : "aspect-video";
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -174,7 +176,7 @@ function Studio() {
       <section className="relative mx-auto max-w-6xl px-5 pb-20">
         <div className="panel p-4 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
-            {(["image", "video"] as Mode[]).map((m) => (
+            {(["image", "video", "voice"] as Mode[]).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
@@ -184,11 +186,15 @@ function Studio() {
                     : "bg-secondary text-secondary-foreground hover:bg-muted"
                 }`}
               >
-                {m === "image" ? "Image" : "Video"}
+                {m === "image" ? "Image" : m === "video" ? "Video" : "Voice"}
               </button>
             ))}
             <span className="ml-auto text-xs text-muted-foreground">
-              {mode === "video" ? "Clips take 1–3 minutes" : "Images take a few seconds"}
+              {mode === "video"
+                ? "Clips take 1–3 minutes"
+                : mode === "voice"
+                  ? "Speech in a few seconds"
+                  : "Images take a few seconds"}
             </span>
           </div>
 
@@ -196,7 +202,11 @@ function Studio() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             rows={4}
-            placeholder="Describe your scene: subject, mood, lighting, colours…"
+            placeholder={
+              mode === "voice"
+                ? "Type the words you want spoken aloud…"
+                : "Describe your scene: subject, mood, lighting, colours…"
+            }
             className="mt-4 w-full resize-none rounded-xl border border-input bg-background/60 p-4 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
 
