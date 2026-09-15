@@ -73,6 +73,8 @@ function Studio() {
   const [prompt, setPrompt] = useState(IDEAS[0]!);
   const [style, setStyle] = useState("cinematic");
   const [ratio, setRatio] = useState("16:9");
+  const [voice, setVoice] = useState("nova");
+  const [tone, setTone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Creation | null>(null);
@@ -84,6 +86,28 @@ function Studio() {
     setError(null);
     setResult(null);
     try {
+      if (mode === "voice") {
+        const res = await fetch("/api/rdx-voice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: prompt, voice, tone }),
+        });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
+          setError(data.error ?? "Something went wrong. Please try again.");
+          return;
+        }
+        const blob = await res.blob();
+        const creation: Creation = {
+          id: `${Date.now()}`,
+          mode,
+          prompt,
+          url: URL.createObjectURL(blob),
+        };
+        setResult(creation);
+        setHistory((h) => [creation, ...h].slice(0, 12));
+        return;
+      }
       const res = await fetch(mode === "image" ? "/api/rdx-image" : "/api/rdx-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
