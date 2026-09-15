@@ -284,7 +284,9 @@ function Studio() {
               {loading
                 ? mode === "video"
                   ? "Rendering your clip…"
-                  : "Painting your image…"
+                  : mode === "voice"
+                    ? "Speaking your words…"
+                    : "Painting your image…"
                 : `Generate ${mode}`}
             </button>
             <button
@@ -308,7 +310,9 @@ function Studio() {
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                 {mode === "video"
                   ? "Generating motion — this can take a couple of minutes."
-                  : "Generating your image…"}
+                  : mode === "voice"
+                    ? "Generating your voiceover…"
+                    : "Generating your image…"}
               </div>
             </div>
           )}
@@ -334,6 +338,11 @@ function Studio() {
                   playsInline
                   className="w-full rounded-xl bg-black"
                 />
+              ) : result.mode === "voice" ? (
+                <div className="flex w-full flex-col items-center justify-center gap-4 rounded-xl border border-border bg-secondary/40 px-6 py-10">
+                  <p className="brand-text font-display text-lg font-semibold">Your voiceover is ready</p>
+                  <audio src={result.url} controls autoPlay className="w-full max-w-md" />
+                </div>
               ) : (
                 <img
                   src={result.url}
