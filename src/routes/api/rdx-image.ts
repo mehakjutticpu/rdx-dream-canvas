@@ -33,8 +33,8 @@ export const Route = createFileRoute("/api/rdx-image")({
           return Response.json({ error: "Image service is not configured." }, { status: 500 });
         }
 
-        const hint = STYLE_HINTS[style ?? "cinematic"] ?? STYLE_HINTS.cinematic;
-        const size = RATIOS[ratio ?? "16:9"] ?? RATIOS["16:9"];
+        const hint = STYLE_HINTS[style ?? "cinematic"] ?? STYLE_HINTS["cinematic"]!;
+        const size = RATIOS[ratio ?? "16:9"] ?? RATIOS["16:9"]!;
         const fullPrompt = `${prompt.trim()}. Style: ${hint}. Highly detailed, aspect ratio ${ratio ?? "16:9"}, output size ${size}.`;
 
         const upstream = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {

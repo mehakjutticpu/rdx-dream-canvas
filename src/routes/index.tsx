@@ -50,7 +50,7 @@ const IDEAS = [
 
 function Studio() {
   const [mode, setMode] = useState<Mode>("image");
-  const [prompt, setPrompt] = useState(IDEAS[0]);
+  const [prompt, setPrompt] = useState(IDEAS[0]!);
   const [style, setStyle] = useState("cinematic");
   const [ratio, setRatio] = useState("16:9");
   const [loading, setLoading] = useState(false);
@@ -201,7 +201,7 @@ function Studio() {
                 : `Generate ${mode}`}
             </button>
             <button
-              onClick={() => setPrompt(IDEAS[Math.floor(Math.random() * IDEAS.length)])}
+              onClick={() => setPrompt(IDEAS[Math.floor(Math.random() * IDEAS.length)]!)}
               className="rounded-xl border border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Surprise me
