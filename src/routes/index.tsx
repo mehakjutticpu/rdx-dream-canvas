@@ -4,17 +4,17 @@ import { useState } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RDX AI Studio — Text to Image & Video Generator" },
+      { title: "RDX AI Studio — Text to Image, Video & Voice Generator" },
       {
         name: "description",
         content:
-          "RDX AI Studio turns your words into cinematic images and videos. Write a prompt, pick a style, and generate in seconds.",
+          "RDX AI Studio turns your words into cinematic images, videos and lifelike voiceovers. Write a prompt, pick a style, and generate in seconds.",
       },
-      { property: "og:title", content: "RDX AI Studio — Text to Image & Video Generator" },
+      { property: "og:title", content: "RDX AI Studio — Text to Image, Video & Voice Generator" },
       {
         property: "og:description",
         content:
-          "Turn a single prompt into cinematic AI images and videos with RDX AI Studio.",
+          "Turn a single prompt into cinematic AI images, videos and lifelike voices with RDX AI Studio.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
   component: Studio,
 });
 
-type Mode = "image" | "video";
+type Mode = "image" | "video" | "voice";
 
 type Creation = {
   id: string;
@@ -42,6 +42,26 @@ const STYLES = [
 
 const RATIOS = ["16:9", "1:1", "9:16"];
 
+const VOICES = [
+  { id: "alloy", label: "Alloy", desc: "Neutral & clear" },
+  { id: "nova", label: "Nova", desc: "Warm & friendly" },
+  { id: "shimmer", label: "Shimmer", desc: "Bright & upbeat" },
+  { id: "coral", label: "Coral", desc: "Soft & expressive" },
+  { id: "echo", label: "Echo", desc: "Calm & smooth" },
+  { id: "fable", label: "Fable", desc: "Storyteller" },
+  { id: "onyx", label: "Onyx", desc: "Deep & bold" },
+  { id: "ash", label: "Ash", desc: "Relaxed & low" },
+];
+
+const TONES = [
+  { id: "", label: "Natural" },
+  { id: "Speak cheerfully and energetically.", label: "Cheerful" },
+  { id: "Speak slowly, calmly and warmly.", label: "Calm" },
+  { id: "Speak like a dramatic movie trailer narrator.", label: "Dramatic" },
+  { id: "Speak like a professional news anchor.", label: "News Anchor" },
+  { id: "Speak like telling a bedtime story to a child.", label: "Storytelling" },
+];
+
 const IDEAS = [
   "A classic red retro car parked on a hillside of pink wildflowers, pastel sky, distant moon, golden cinematic light",
   "Neon Tokyo alley in the rain, reflections on wet asphalt, steam rising, cyberpunk mood",
@@ -53,6 +73,8 @@ function Studio() {
   const [prompt, setPrompt] = useState(IDEAS[0]!);
   const [style, setStyle] = useState("cinematic");
   const [ratio, setRatio] = useState("16:9");
+  const [voice, setVoice] = useState("nova");
+  const [tone, setTone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Creation | null>(null);
@@ -64,6 +86,28 @@ function Studio() {
     setError(null);
     setResult(null);
     try {
+      if (mode === "voice") {
+        const res = await fetch("/api/rdx-voice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: prompt, voice, tone }),
+        });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
+          setError(data.error ?? "Something went wrong. Please try again.");
+          return;
+        }
+        const blob = await res.blob();
+        const creation: Creation = {
+          id: `${Date.now()}`,
+          mode,
+          prompt,
+          url: URL.createObjectURL(blob),
+        };
+        setResult(creation);
+        setHistory((h) => [creation, ...h].slice(0, 12));
+        return;
+      }
       const res = await fetch(mode === "image" ? "/api/rdx-image" : "/api/rdx-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,13 +134,15 @@ function Studio() {
   }
 
   const aspectClass =
-    result?.mode === "video"
-      ? "aspect-video"
-      : ratio === "1:1"
-        ? "aspect-square"
-        : ratio === "9:16"
-          ? "aspect-[9/16]"
-          : "aspect-video";
+    mode === "voice" || result?.mode === "voice"
+      ? "aspect-[3/1]"
+      : result?.mode === "video"
+        ? "aspect-video"
+        : ratio === "1:1"
+          ? "aspect-square"
+          : ratio === "9:16"
+            ? "aspect-[9/16]"
+            : "aspect-video";
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -130,7 +176,7 @@ function Studio() {
       <section className="relative mx-auto max-w-6xl px-5 pb-20">
         <div className="panel p-4 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
-            {(["image", "video"] as Mode[]).map((m) => (
+            {(["image", "video", "voice"] as Mode[]).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
@@ -140,11 +186,15 @@ function Studio() {
                     : "bg-secondary text-secondary-foreground hover:bg-muted"
                 }`}
               >
-                {m === "image" ? "Image" : "Video"}
+                {m === "image" ? "Image" : m === "video" ? "Video" : "Voice"}
               </button>
             ))}
             <span className="ml-auto text-xs text-muted-foreground">
-              {mode === "video" ? "Clips take 1–3 minutes" : "Images take a few seconds"}
+              {mode === "video"
+                ? "Clips take 1–3 minutes"
+                : mode === "voice"
+                  ? "Speech in a few seconds"
+                  : "Images take a few seconds"}
             </span>
           </div>
 
@@ -152,7 +202,11 @@ function Studio() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             rows={4}
-            placeholder="Describe your scene: subject, mood, lighting, colours…"
+            placeholder={
+              mode === "voice"
+                ? "Type the words you want spoken aloud…"
+                : "Describe your scene: subject, mood, lighting, colours…"
+            }
             className="mt-4 w-full resize-none rounded-xl border border-input bg-background/60 p-4 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
 
@@ -186,7 +240,40 @@ function Studio() {
                   {r}
                 </button>
               ))}
+            {mode === "voice" &&
+              TONES.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTone(t.id)}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    tone === t.id
+                      ? "border-primary text-primary"
+                      : "border-border text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
           </div>
+
+          {mode === "voice" && (
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {VOICES.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => setVoice(v.id)}
+                  className={`rounded-xl border p-3 text-left transition-colors ${
+                    voice === v.id
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-muted"
+                  }`}
+                >
+                  <p className="text-sm font-medium">{v.label}</p>
+                  <p className="text-xs text-muted-foreground">{v.desc}</p>
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button
@@ -197,7 +284,9 @@ function Studio() {
               {loading
                 ? mode === "video"
                   ? "Rendering your clip…"
-                  : "Painting your image…"
+                  : mode === "voice"
+                    ? "Speaking your words…"
+                    : "Painting your image…"
                 : `Generate ${mode}`}
             </button>
             <button
@@ -221,7 +310,9 @@ function Studio() {
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                 {mode === "video"
                   ? "Generating motion — this can take a couple of minutes."
-                  : "Generating your image…"}
+                  : mode === "voice"
+                    ? "Generating your voiceover…"
+                    : "Generating your image…"}
               </div>
             </div>
           )}
@@ -247,6 +338,11 @@ function Studio() {
                   playsInline
                   className="w-full rounded-xl bg-black"
                 />
+              ) : result.mode === "voice" ? (
+                <div className="flex w-full flex-col items-center justify-center gap-4 rounded-xl border border-border bg-secondary/40 px-6 py-10">
+                  <p className="brand-text font-display text-lg font-semibold">Your voiceover is ready</p>
+                  <audio src={result.url} controls autoPlay className="w-full max-w-md" />
+                </div>
               ) : (
                 <img
                   src={result.url}
@@ -284,6 +380,10 @@ function Studio() {
                 >
                   {item.mode === "video" ? (
                     <video src={item.url} muted className="aspect-video w-full object-cover" />
+                  ) : item.mode === "voice" ? (
+                    <div className="flex aspect-video w-full items-center justify-center bg-secondary text-xs text-muted-foreground">
+                      ▶ Voice clip
+                    </div>
                   ) : (
                     <img
                       src={item.url}
