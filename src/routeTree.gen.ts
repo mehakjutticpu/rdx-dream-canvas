@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiRdxImageRouteImport } from './routes/api/rdx-image'
+import { Route as ApiRdxVideoRouteImport } from './routes/api/rdx-video'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRdxImageRoute = ApiRdxImageRouteImport.update({
+  id: '/api/rdx-image',
+  path: '/api/rdx-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRdxVideoRoute = ApiRdxVideoRouteImport.update({
+  id: '/api/rdx-video',
+  path: '/api/rdx-video',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/rdx-image': typeof ApiRdxImageRoute
+  '/api/rdx-video': typeof ApiRdxVideoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/rdx-image': typeof ApiRdxImageRoute
+  '/api/rdx-video': typeof ApiRdxVideoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/rdx-image': typeof ApiRdxImageRoute
+  '/api/rdx-video': typeof ApiRdxVideoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/rdx-image' | '/api/rdx-video'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/rdx-image' | '/api/rdx-video'
+  id: '__root__' | '/' | '/api/rdx-image' | '/api/rdx-video'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiRdxImageRoute: typeof ApiRdxImageRoute
+  ApiRdxVideoRoute: typeof ApiRdxVideoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/rdx-image': {
+      id: '/api/rdx-image'
+      path: '/api/rdx-image'
+      fullPath: '/api/rdx-image'
+      preLoaderRoute: typeof ApiRdxImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rdx-video': {
+      id: '/api/rdx-video'
+      path: '/api/rdx-video'
+      fullPath: '/api/rdx-video'
+      preLoaderRoute: typeof ApiRdxVideoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiRdxImageRoute: ApiRdxImageRoute,
+  ApiRdxVideoRoute: ApiRdxVideoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
