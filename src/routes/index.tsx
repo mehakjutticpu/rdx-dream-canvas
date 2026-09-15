@@ -4,17 +4,17 @@ import { useState } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RDX AI Studio — Text to Image & Video Generator" },
+      { title: "RDX AI Studio — Text to Image, Video & Voice Generator" },
       {
         name: "description",
         content:
-          "RDX AI Studio turns your words into cinematic images and videos. Write a prompt, pick a style, and generate in seconds.",
+          "RDX AI Studio turns your words into cinematic images, videos and lifelike voiceovers. Write a prompt, pick a style, and generate in seconds.",
       },
-      { property: "og:title", content: "RDX AI Studio — Text to Image & Video Generator" },
+      { property: "og:title", content: "RDX AI Studio — Text to Image, Video & Voice Generator" },
       {
         property: "og:description",
         content:
-          "Turn a single prompt into cinematic AI images and videos with RDX AI Studio.",
+          "Turn a single prompt into cinematic AI images, videos and lifelike voices with RDX AI Studio.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
   component: Studio,
 });
 
-type Mode = "image" | "video";
+type Mode = "image" | "video" | "voice";
 
 type Creation = {
   id: string;
@@ -41,6 +41,26 @@ const STYLES = [
 ];
 
 const RATIOS = ["16:9", "1:1", "9:16"];
+
+const VOICES = [
+  { id: "alloy", label: "Alloy", desc: "Neutral & clear" },
+  { id: "nova", label: "Nova", desc: "Warm & friendly" },
+  { id: "shimmer", label: "Shimmer", desc: "Bright & upbeat" },
+  { id: "coral", label: "Coral", desc: "Soft & expressive" },
+  { id: "echo", label: "Echo", desc: "Calm & smooth" },
+  { id: "fable", label: "Fable", desc: "Storyteller" },
+  { id: "onyx", label: "Onyx", desc: "Deep & bold" },
+  { id: "ash", label: "Ash", desc: "Relaxed & low" },
+];
+
+const TONES = [
+  { id: "", label: "Natural" },
+  { id: "Speak cheerfully and energetically.", label: "Cheerful" },
+  { id: "Speak slowly, calmly and warmly.", label: "Calm" },
+  { id: "Speak like a dramatic movie trailer narrator.", label: "Dramatic" },
+  { id: "Speak like a professional news anchor.", label: "News Anchor" },
+  { id: "Speak like telling a bedtime story to a child.", label: "Storytelling" },
+];
 
 const IDEAS = [
   "A classic red retro car parked on a hillside of pink wildflowers, pastel sky, distant moon, golden cinematic light",

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRdxImageRouteImport } from './routes/api/rdx-image'
 import { Route as ApiRdxVideoRouteImport } from './routes/api/rdx-video'
+import { Route as ApiRdxVoiceRouteImport } from './routes/api/rdx-voice'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const ApiRdxVideoRoute = ApiRdxVideoRouteImport.update({
   path: '/api/rdx-video',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRdxVoiceRoute = ApiRdxVoiceRouteImport.update({
+  id: '/api/rdx-voice',
+  path: '/api/rdx-voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/rdx-image': typeof ApiRdxImageRoute
   '/api/rdx-video': typeof ApiRdxVideoRoute
+  '/api/rdx-voice': typeof ApiRdxVoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/rdx-image': typeof ApiRdxImageRoute
   '/api/rdx-video': typeof ApiRdxVideoRoute
+  '/api/rdx-voice': typeof ApiRdxVoiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/rdx-image': typeof ApiRdxImageRoute
   '/api/rdx-video': typeof ApiRdxVideoRoute
+  '/api/rdx-voice': typeof ApiRdxVoiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/rdx-image' | '/api/rdx-video'
+  fullPaths: '/' | '/api/rdx-image' | '/api/rdx-video' | '/api/rdx-voice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/rdx-image' | '/api/rdx-video'
-  id: '__root__' | '/' | '/api/rdx-image' | '/api/rdx-video'
+  to: '/' | '/api/rdx-image' | '/api/rdx-video' | '/api/rdx-voice'
+  id: '__root__' | '/' | '/api/rdx-image' | '/api/rdx-video' | '/api/rdx-voice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiRdxImageRoute: typeof ApiRdxImageRoute
   ApiRdxVideoRoute: typeof ApiRdxVideoRoute
+  ApiRdxVoiceRoute: typeof ApiRdxVoiceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRdxVideoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/rdx-voice': {
+      id: '/api/rdx-voice'
+      path: '/api/rdx-voice'
+      fullPath: '/api/rdx-voice'
+      preLoaderRoute: typeof ApiRdxVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiRdxImageRoute: ApiRdxImageRoute,
   ApiRdxVideoRoute: ApiRdxVideoRoute,
+  ApiRdxVoiceRoute: ApiRdxVoiceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
