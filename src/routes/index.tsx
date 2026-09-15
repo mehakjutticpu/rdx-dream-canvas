@@ -380,6 +380,10 @@ function Studio() {
                 >
                   {item.mode === "video" ? (
                     <video src={item.url} muted className="aspect-video w-full object-cover" />
+                  ) : item.mode === "voice" ? (
+                    <div className="flex aspect-video w-full items-center justify-center bg-secondary text-xs text-muted-foreground">
+                      ▶ Voice clip
+                    </div>
                   ) : (
                     <img
                       src={item.url}
